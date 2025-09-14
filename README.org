@@ -1,0 +1,50 @@
+* Try-Catch
+
+** Separation of Concerns
+try-catch separates normal logic from error-handling logic. This makes your code cleaner and easier to understand, especially when handling exceptional (not expected) conditions.
+
+** Graceful Error Recovery
+Instead of crashing the application, you can catch exceptions and recover gracefully—by logging the error, showing a friendly message to the user, or retrying the operation.
+
+** Handling Unexpected Failures
+Exceptions can come from anywhere (e.g., file I/O, database access, invalid user input). try-catch gives you a unified way to catch and deal with these issues—even if you didn’t anticipate them during development.
+
+** Specific to General Error Handling
+You can catch specific exception types first (FileNotFoundException, InvalidOperationException, etc.), and fall back to a general Exception catch block. This allows for precise control over different error types.
+
+** Stack Trace and Diagnostic Info
+Caught exceptions include useful details like the message, stack trace, inner exception, and error code. This is critical for debugging and logging.
+
+** Supports Finally Blocks
+The finally block allows you to ensure resources are cleaned up (like closing files, releasing connections), regardless of whether an error occurred.
+
+** Works with .NET Libraries
+Most of the .NET runtime and libraries use exceptions for error signaling. try-catch is the idiomatic way to interact with these APIs.
+
+
+
+* Result<TSuccess, TError> and Error Hierarchy with Records in C#
+
+** Clear Structure and Organization
+
+Using a hierarchy lets you define a common base record (e.g., Error) and extend it into specific error types (e.g., ValidationError, DatabaseError, etc.). This makes your error model more structured and easier to reason about.
+
+** Code Reuse and Consistency
+
+Shared properties (like Message, Timestamp, or Code) can live in the base record, while derived records add only what’s necessary for their specific case. This avoids duplication and keeps things consistent.
+
+** Pattern Matching-Friendly
+
+C# records work seamlessly with pattern matching in switch expressions or if statements. This allows you to handle errors based on their type cleanly and declaratively.
+
+** Immutability for Safety
+
+Records are immutable by default, which means once an error is created, it can’t be changed. This makes error data safer to pass around, log, or display without worrying about accidental modifications.
+
+** Scalability and Maintainability
+As your application grows, you can easily add new error types by extending the hierarchy. This keeps your error handling logic modular and maintainable over time.
+
+** Local Reasoning
+
+When you work with something like Result<TSuccess, TError>, and you return this from a method, you know that the error (if present) will be one of the expected types within your TError hierarchy. This allows you to reason locally — at the call site — about exactly which errors could occur, and how to handle them.
+Instead of scanning unrelated parts of the codebase, you see the contract clearly: “this function either returns a success or a known error type”.
