@@ -5,6 +5,8 @@ class Program
     static async Task Main(string[] args)
     {
 
+        IfElseWithNull.Run();
+
         // Example using try / catch
         await TryCatch.Run();
 
