@@ -36,7 +36,7 @@ User ValidateUser(string username)
 
 * [[./TryCatchExceptionHierarchy.cs][TryCatchExceptionHierarchy.cs]]
 
-Denna kod har samma problem som i föregående exempel: det framgår inte från metodsignaturen vad som kan gå fel eller vilka exceptions som kan kastas. Men i detta fall kastar varje metod ett eget =Exception= som ärvs från en gemensam basklass. På så sätt kan felen hanteras centralt.
+Denna kod har samma problem som i föregående exempel: det framgår inte från metodsignaturen vad som kan gå fel eller vilka exceptions som kan kastas. Men i detta fall kastar varje metod ett eget =Exception= som ärvs från en gemensam basklass. På så sätt kan felen hanteras mer granulärt.
 
 #+BEGIN_SRC csharp
 User ValidateUser(string username)
@@ -65,7 +65,7 @@ Result<int, string> a = ValidateUser("A")
                            .Bind(SendEmail);
 #+END_SRC
 
-I just denna kod returneras fel som en sträng. Det är kanske inte optimalt, och i nästa exempel visas hur vi kan returnera mer detaljerad information.
+I just denna kod returneras fel som en sträng. Det är kanske inte optimalt, och i kommande exempel visas hur vi kan returnera mer detaljerad information.
 
 * [[./ResultStringLinq.cs][ResultStringLinq.cs]]
 
