@@ -4,6 +4,8 @@ Detta är underlag till en presentation om felhantering i C#.
 
 Presentationens syfte är att gå igenom olika verktyg för att hantera fel — från enklare null-returer till =Result<TSuccess, TError>= och hur dessa kan kombineras med =Bind= och användas med LINQ.
 
+Studera kodexempel i varje fil genom webbläsaren eller clone koden och använd din IDE eller editor.
+
 * Förslag på prompt starters
 
 Nedan är några frågor du kan använda för att börja prompta:
