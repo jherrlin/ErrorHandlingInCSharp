@@ -3,28 +3,13 @@ namespace ConsoleApp
 {
     public class TryCatch
     {
-        public static async Task Run()
+        public static void Run()
         {
-            int emailReturnValue;
             try
             {
-                var validUser = await ValidateUser("A");
-                try
-                {
-                    var savedUser = await SaveUser(validUser);
-                    try
-                    {
-                        emailReturnValue = await SendEmail(savedUser);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"{ex.Message}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"{ex.Message}");
-                }
+                var validUser = ValidateUser("A");
+                var savedUser = SaveUser(validUser);
+                int emailReturnValue = SendEmail(savedUser);
             }
             catch (Exception ex)
             {
@@ -32,7 +17,7 @@ namespace ConsoleApp
             }
         }
 
-        public static async Task<User> ValidateUser(string username)
+        public static User ValidateUser(string username)
         {
             Console.WriteLine($"ValidateUser: {username}");
 
@@ -41,10 +26,10 @@ namespace ConsoleApp
                 throw new Exception("username includes illegal char");
 
             }
-            return await Task.FromResult(new User(username));
+            return new User(username);
         }
 
-        public static async Task<SavedUsed> SaveUser(User user)
+        public static SavedUsed SaveUser(User user)
         {
             Console.WriteLine($"SaveUser: {user.Name}");
 
@@ -53,10 +38,10 @@ namespace ConsoleApp
                 throw new Exception("Failed when saved user");
 
             }
-            return await Task.FromResult(new SavedUsed(user));
+            return new SavedUsed(user);
         }
 
-        public static async Task<int> SendEmail(SavedUsed user)
+        public static int SendEmail(SavedUsed user)
         {
             Console.WriteLine($"Sending email: {user.User.Name}");
 
@@ -65,7 +50,7 @@ namespace ConsoleApp
                 throw new Exception("Failed when saving user");
 
             }
-            return await Task.FromResult(1);
+            return 1;
         }
 
         public class User(string name)

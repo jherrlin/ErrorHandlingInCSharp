@@ -15,8 +15,8 @@ namespace ConsoleApp
             Result<int, Error> a;
             a = await from validUser in ValidateUser("AB")
                       from savedUser in SaveUser(validUser)
-                      from providerCode in SendEmail(savedUser)
-                      select providerCode;
+                      from emailReturnCode in SendEmail(savedUser)
+                      select emailReturnCode;
 
             if (a.IsSuccess)
             {

@@ -15,8 +15,8 @@ namespace ConsoleApp
             Result<int, Error> a = await 
                     from validUser in ValidateUser("AB")
                     from savedUser in SaveUser(validUser)
-                    from providerCode in SendEmail(savedUser) 
-                    select providerCode;
+                    from emailReturnCode in SendEmail(savedUser) 
+                    select emailReturnCode;
 
             if (a.IsSuccess)
             {
@@ -24,9 +24,18 @@ namespace ConsoleApp
             }
             else
             {
-                Console.WriteLine($"Failure: {a.Error}");
+                // Here we can handle errors in a single location
+                Console.WriteLine(HandleError(a.Error));
             }
         }
+
+        public static string HandleError(Error error) => error switch
+        {
+            ValidationError ve => $"Validation error: {ve.msg}",
+            SavedUserError sue => $"Saved user error: {sue.msg}",
+            SendEmailError see => $"Send email error: {see.msg}",
+            _ => "An unknown error occurred."
+        };
 
         public static Result<User, Error> ValidateUser(string username)
         {

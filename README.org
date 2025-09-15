@@ -1,25 +1,54 @@
+* [[./IfElseWithNull.cs][IfElseWithNull.cs]]
+
+Koden hanterar fel genom enkla null-kontroller men detta är varken
+robust eller tydligt.  Det saknas riktig felhantering som exempelvis
+try/catch, eller specifika feltyper. Att använda null som signal för
+fel gör felsökning svårt, och returvärden används inte
+konsekvent. Koden fungerar i enkel form, men bör förbättras för att
+vara mer tydlig, tillförlitlig och underhållbar.
+
+#+BEGIN_SRC csharp
+User? ValidateUser(string username)
+#+END_SRC
+
+
 * Try-Catch
 
 ** Separation of Concerns
-try-catch separates normal logic from error-handling logic. This makes your code cleaner and easier to understand, especially when handling exceptional (not expected) conditions.
+try-catch separates normal logic from error-handling logic. This makes
+your code cleaner and easier to understand, especially when handling
+exceptional (not expected) conditions.
 
 ** Graceful Error Recovery
-Instead of crashing the application, you can catch exceptions and recover gracefully�by logging the error, showing a friendly message to the user, or retrying the operation.
+Instead of crashing the application, you can catch exceptions and
+recover gracefully�by logging the error, showing a friendly message
+to the user, or retrying the operation.
 
 ** Handling Unexpected Failures
-Exceptions can come from anywhere (e.g., file I/O, database access, invalid user input). try-catch gives you a unified way to catch and deal with these issues�even if you didn�t anticipate them during development.
+Exceptions can come from anywhere (e.g., file I/O, database access,
+invalid user input). try-catch gives you a unified way to catch and
+deal with these issues�even if you didn�t anticipate them during
+development.
 
 ** Specific to General Error Handling
-You can catch specific exception types first (FileNotFoundException, InvalidOperationException, etc.), and fall back to a general Exception catch block. This allows for precise control over different error types.
+You can catch specific exception types first (FileNotFoundException,
+InvalidOperationException, etc.), and fall back to a general Exception
+catch block. This allows for precise control over different error
+types.
 
 ** Stack Trace and Diagnostic Info
-Caught exceptions include useful details like the message, stack trace, inner exception, and error code. This is critical for debugging and logging.
+Caught exceptions include useful details like the message, stack
+trace, inner exception, and error code. This is critical for debugging
+and logging.
 
 ** Supports Finally Blocks
-The finally block allows you to ensure resources are cleaned up (like closing files, releasing connections), regardless of whether an error occurred.
+The finally block allows you to ensure resources are cleaned up (like
+closing files, releasing connections), regardless of whether an error
+occurred.
 
 ** Works with .NET Libraries
-Most of the .NET runtime and libraries use exceptions for error signaling. try-catch is the idiomatic way to interact with these APIs.
+Most of the .NET runtime and libraries use exceptions for error
+signaling. try-catch is the idiomatic way to interact with these APIs.
 
 
 

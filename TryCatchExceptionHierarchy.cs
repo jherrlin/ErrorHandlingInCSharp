@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace ConsoleApp
 {
     public class TryCatchExceptionHierarchy
@@ -12,14 +7,14 @@ namespace ConsoleApp
         public class SaveUserException(string message) : Exception(message);
         public class SendEmailException(string message) : Exception(message);
 
-        public static async Task Run()
+        public static void Run()
         {
          
             try
             {
-                var validUser = await ValidateUser("A");
-                var savedUser = await SaveUser(validUser);
-                var emailReturnValue = await SendEmail(savedUser);
+                var validUser = ValidateUser("A");
+                var savedUser = SaveUser(validUser);
+                var emailReturnValue = SendEmail(savedUser);
             }
             catch (ValidationException ex)
             {
@@ -39,7 +34,7 @@ namespace ConsoleApp
             }
         }
 
-        public static async Task<User> ValidateUser(string username)
+        public static User ValidateUser(string username)
         {
             Console.WriteLine($"ValidateUser: {username}");
 
@@ -51,7 +46,7 @@ namespace ConsoleApp
             return new User(username);
         }
 
-        public static async Task<SavedUsed> SaveUser(User user)
+        public static SavedUsed SaveUser(User user)
         {
             Console.WriteLine($"SaveUser: {user.Name}");
 
@@ -60,10 +55,10 @@ namespace ConsoleApp
                 throw new Exception("Failed when saved user");
 
             }
-            return await Task.FromResult(new SavedUsed(user));
+            return new SavedUsed(user);
         }
 
-        public static async Task<int> SendEmail(SavedUsed user)
+        public static int SendEmail(SavedUsed user)
         {
             Console.WriteLine($"Sending email: {user.User.Name}");
 
@@ -72,7 +67,7 @@ namespace ConsoleApp
                 throw new Exception("Failed when saving user");
 
             }
-            return await Task.FromResult(1);
+            return 1;
         }
 
         public class User(string name)
