@@ -1,79 +1,140 @@
+#+TITLE: Felhantering i C#
+
+Detta är underlag till en presentaion kring felhantering i C#.
+
+Presentationen går igenom olika verktyg för att hantera fel. Från
+enklare null returns till Result<TSuccess,TError> och hur dessa kan
+slås ihop med Bind och användas med LINQ.
+
+* Förslag på prompt starters
+
+Nedan är några frågor du kan använda för att börja prompta
+
+- Can du förklara för mig hur Bind funkar i CSharpFunctionalExtensions med Result<T,E>?
+- Hur kan jag i CSharpFunctionalExtensions retunera en Result<T,E> discriminating union Error record
+- Vad är fördelarna med CSharpFunctionalExtensions retunera en Result<T,E> discriminating union Error record
+
 * [[./IfElseWithNull.cs][IfElseWithNull.cs]]
 
 Koden hanterar fel genom enkla null-kontroller men detta är varken
-robust eller tydligt.  Det saknas riktig felhantering som exempelvis
+robust eller tydligt. Det saknas riktig felhantering som exempelvis
 try/catch, eller specifika feltyper. Att använda null som signal för
 fel gör felsökning svårt, och returvärden används inte
 konsekvent. Koden fungerar i enkel form, men bör förbättras för att
 vara mer tydlig, tillförlitlig och underhållbar.
 
+Metodsignaturen visar tydligt att den retunerar User eller null. Men
+vi är begränsade i den information som null kan leverera.
+
 #+BEGIN_SRC csharp
 User? ValidateUser(string username)
 #+END_SRC
 
+* [[./TryCatch.cs][TryCatch.cs]]
 
-* Try-Catch
+I denna koden så kastar metoderna exceptions. Genom att kolla på
+metodsignaturen så kan man inte se vilka Exceptions som retuneras och
+utvecklaren måste gå in i metoden för att undersöka. Detta försvagar
+möjlighten till att skapa abstraktioner och således ökar den kognitiva
+lasten.
 
-** Separation of Concerns
-try-catch separates normal logic from error-handling logic. This makes
-your code cleaner and easier to understand, especially when handling
-exceptional (not expected) conditions.
+I Run så vet man inte vilken metod det var som gick gel.
 
-** Graceful Error Recovery
-Instead of crashing the application, you can catch exceptions and
-recover gracefully�by logging the error, showing a friendly message
-to the user, or retrying the operation.
+#+BEGIN_SRC csharp
+User ValidateUser(string username)
+#+END_SRC
 
-** Handling Unexpected Failures
-Exceptions can come from anywhere (e.g., file I/O, database access,
-invalid user input). try-catch gives you a unified way to catch and
-deal with these issues�even if you didn�t anticipate them during
-development.
+*  [[./TryCatchExceptionHierarchy.cs][TryCatchExceptionHierarchy.cs]]
 
-** Specific to General Error Handling
-You can catch specific exception types first (FileNotFoundException,
-InvalidOperationException, etc.), and fall back to a general Exception
-catch block. This allows for precise control over different error
-types.
+I denna koden så har vi samma problem som i exemplet ovan, man kan
+utifrån metodsignaturen inte avgöra vad som kan gå fel eller vilka
+Exceptions som kastas. Men i detta exemplet så retunerar varje metod
+ett custom exception baserat på bas Exception. På det sättet så är det
+möjligt att ta hand om felen centralt.
 
-** Stack Trace and Diagnostic Info
-Caught exceptions include useful details like the message, stack
-trace, inner exception, and error code. This is critical for debugging
-and logging.
+#+BEGIN_SRC csharp
+User ValidateUser(string username)
+#+END_SRC
 
-** Supports Finally Blocks
-The finally block allows you to ensure resources are cleaned up (like
-closing files, releasing connections), regardless of whether an error
-occurred.
+* [[./ResultString.cs][ResultString.cs]]
 
-** Works with .NET Libraries
-Most of the .NET runtime and libraries use exceptions for error
-signaling. try-catch is the idiomatic way to interact with these APIs.
+Nu använder vi Result<T,E> från [[https://github.com/vkhorikov/CSharpFunctionalExtensions][CSharpFunctionalExtensions]]. Detta ger
+oss möjligheten att säga att metoden =ValidateUser= retunerar =User=
+*ELLER* =string=. =string= i detta fallet är ett felmedelande som
+retunerars från metoden.
 
+Det viktiga här är att vi nu kan beskriva att metoden retunerar =User=
+*ELLER* =string=!!!
 
+#+BEGIN_SRC csharp
+Result<User, string> ValidateUser(string username)
+#+END_SRC
 
-* Result<TSuccess, TError> and Error Hierarchy with Records in C#
+När vi nu har möjligheten att resonera om att något kan vara det ena
+eller det andra så får vi tillgång till ett användbart mönster. Det
+som kallas för =Bind=.
 
-** Clear Structure and Organization
+Bind används för att kedja ihop operationer som returnerar =Result<T,
+E>=, på ett säkert sätt. Returnera tidigt vid fel — utan extra logik.
+Kodflödet blir rent och tydligt. Du slipper if-satser och try/catch i
+varje steg. Felhantering är tydligt, automatisk och konsekvent.
 
-Using a hierarchy lets you define a common base record (e.g., Error) and extend it into specific error types (e.g., ValidationError, DatabaseError, etc.). This makes your error model more structured and easier to reason about.
+Om någon av operationerna skulle retunera =Result.Failure= kommer
+kedjan att kortsluta och inga nästkommande operationer kommer köras.
 
-** Code Reuse and Consistency
+#+BEGIN_SRC csharp
+//     TSuccess, TError 
+Result<int     ,string> a = ValidateUser("A")
+                               .Bind(SaveUser)
+                               .Bind(SendEmail);
+#+END_SRC
 
-Shared properties (like Message, Timestamp, or Code) can live in the base record, while derived records add only what�s necessary for their specific case. This avoids duplication and keeps things consistent.
+I just denna koden är vi begränsade till att fel retuneras som en
+sträng. Det är kanske inte helt optimalt och i senare steg visas hur
+vi kan retunera mer data.
 
-** Pattern Matching-Friendly
+* [[./ResultStringLinq.cs][ResultStringLinq.cs]]
 
-C# records work seamlessly with pattern matching in switch expressions or if statements. This allows you to handle errors based on their type cleanly and declaratively.
+I detta exemplet så använder vi exakt samma tankar som ovan, varje
+metod retunerar =Result<T, E>=. Men här tar vi hjälp av LINQ syntaxten
+för att göra koden ännu mer lättläst, och vi får tillgång till
+variable från metoder tidigare i kedjan.
 
-** Immutability for Safety
+#+BEGIN_SRC csharp
+Result<int, string> a = from validaUser in ValidateUser("A") 
+                        from savedUser in SaveUser(validaUser)
+                        from emailReturnCode in SendEmail(savedUser)
+                        select emailReturnCode;
+#+END_SRC
 
-Records are immutable by default, which means once an error is created, it can�t be changed. This makes error data safer to pass around, log, or display without worrying about accidental modifications.
+* [[./ResultLinqAsync.cs][ResultLinqAsync.cs]]
 
-** Scalability and Maintainability
-As your application grows, you can easily add new error types by extending the hierarchy. This keeps your error handling logic modular and maintainable over time.
+Nu har vi kommit till sista delan.
 
-** Local Reasoning
+#+BEGIN_SRC csharp
+Result<User, Error> ValidateUser(string username)
+#+END_SRC
 
-When you work with something like Result<TSuccess, TError>, and you return this from a method, you know that the error (if present) will be one of the expected types within your TError hierarchy. This allows you to reason locally � at the call site � about exactly which errors could occur, and how to handle them.
-Instead of scanning unrelated parts of the codebase, you see the contract clearly: �this function either returns a success or a known error type�.
+Här har vi en metodsignatur som retunerar =User= eller =Error= där
+=Error= är en hierarki av records.
+
+#+BEGIN_SRC csharp
+record Error(string msg);
+record ValidationError(string msg) : Error(msg);
+record SavedUserError(string msg) : Error(msg);
+record SendEmailError(string msg) : Error(msg);
+#+END_SRC
+
+Genom att retunera ett =Error= så kan vi på ett central och tydligt
+sätt hantera all fel.
+
+#+BEGIN_SRC csharp
+public static string HandleError(Error error) => error switch
+{
+    ValidationError ve => $"Validation error: {ve.msg}",
+    SavedUserError sue => $"Saved user error: {sue.msg}",
+    SendEmailError see => $"Send email error: {see.msg}",
+    _ => "An unknown error occurred."
+};
+#+END_SRC
+
