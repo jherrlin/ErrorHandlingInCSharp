@@ -106,3 +106,7 @@ public static string HandleError(Error error) => error switch
     _ => "An unknown error occurred."
 };
 #+END_SRC
+
+Här har vi tydlighet mot utvecklaren vad som retuneras vid success
+eller failure. Det är enkelt att resonera om felen och att ta hand om
+dem.
